@@ -129,12 +129,16 @@ void * networkThreadFunction()
 			if (!cur)
 			{
 				failed = true;
+				swprintf(newsText, 4096, L"Failed to parse news...");
 			}
 			else
 			{
 				cur = cur->FirstChildElement("news");
-				if (!cur)
+				if (!cur) 
+				{
 					failed = true;
+					swprintf(newsText, 4096, L"Failed to parse news...");
+				}
 				else
 				{
 					if (cur->FirstChild() && cur->FirstChild()->ToText())
@@ -143,16 +147,22 @@ void * networkThreadFunction()
 						swprintf(newsText, 4096, L"%s", text);
 					}
 					else
+					{
 						failed = true;
+						swprintf(newsText, 4096, L"No news at this time...");
+					}
 				}
 			}
 			if (failed)
-				SleepDuringWork(5000);
+				SleepDuringWork(5 * 60 * 1000);
+				//SleepDuringWork(5000);
 			else
 				SleepDuringWork(5 * 60 * 1000);
 		}
 		else
 		{
+			swprintf(newsText, 4096, L"Failed to download news...");
+			sleep(5);
 		}
 		free(buffer);
 

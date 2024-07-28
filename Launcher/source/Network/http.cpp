@@ -123,7 +123,7 @@ int downloadFileToBuffer(char * url, char ** buffer, wchar_t * sCurrentInfoText,
 		netBusy = false;
 		return -1;
 	}
-	char * headerformat = "GET %s HTTP/1.0\r\nHost: %s\r\nUser-Agent: PMLauncher %4.2f\r\n\r\n";;
+	char * headerformat = "GET %s HTTP/1.1\r\nHost: %s\r\nUser-Agent: PMLauncher %4.2f\r\n\r\n";;
 
 	char strHeader[strlen(headerformat) + strlen(domain) + strlen(path)];
 	char *r = strHeader;
@@ -192,9 +192,18 @@ int downloadFileToBuffer(char * url, char ** buffer, wchar_t * sCurrentInfoText,
 		return -1;
 	}
 
-	ptr = strstr(downloadBuffer, "Content-Length:");
+	ptr = strcasestr(downloadBuffer, "content-length:");
+	if (!ptr) 
+	{
+		return -1;
+	}
+
+	// ensure chars match case we expect
+	for (int i = 0; i < 15; i++) {
+		ptr[i] = tolower(ptr[i]);
+	}
 	u32 filesize;
-	sscanf(ptr, "Content-Length: %u", &filesize);
+	sscanf(ptr, "content-length: %u", &filesize);
 
 	if (sCurrentInfoText)
 		swprintf(sCurrentInfoText, 255, L"Downloading update... (0/%uKB)", filesize / 1024);
@@ -354,7 +363,7 @@ bool downloadFileToDisk(char * url, char*out, wchar_t * sCurrentInfoText, bool &
 		return false;
 	}
 
-	char * headerformat = "GET %s HTTP/1.0\r\nHost: %s\r\nUser-Agent: PMLauncher %4.2f\r\n\r\n";;
+	char * headerformat = "GET %s HTTP/1.1\r\nHost: %s\r\nUser-Agent: PMLauncher %4.2f\r\n\r\n";;
 
 	char strHeader[strlen(headerformat) + strlen(domain) + strlen(path)];
 	char *r = strHeader;
@@ -423,9 +432,18 @@ bool downloadFileToDisk(char * url, char*out, wchar_t * sCurrentInfoText, bool &
 		return false;
 	}
 
-	ptr = strstr(downloadBuffer, "Content-Length:");
+	ptr = strcasestr(downloadBuffer, "content-length:");
+	if (!ptr) 
+	{
+		return -1;
+	}
+
+	// ensure chars match case we expect
+	for (int i = 0; i < 15; i++) {
+		ptr[i] = tolower(ptr[i]);
+	}
 	u32 filesize;
-	sscanf(ptr, "Content-Length: %u", &filesize);
+	sscanf(ptr, "content-length: %u", &filesize);
 
 	if (filesize <= 0)
 	{
