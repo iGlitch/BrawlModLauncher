@@ -1,4 +1,5 @@
 #include "http.h"
+#include <ctype.h>
 #include <errno.h>
 #include <network.h>
 #include <string.h>
