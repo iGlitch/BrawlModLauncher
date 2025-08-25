@@ -69,7 +69,7 @@ TPLFile defaultTPL;
 extern s32 wu_fd;
 void BackToLoader(void);
 static s32 iosVersion = 58;
-f32 g_LauncherVersion = 1.14f;
+f32 g_LauncherVersion = 1.15f;
 
 namespace UIThread
 {
