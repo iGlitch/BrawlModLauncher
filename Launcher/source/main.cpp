@@ -183,7 +183,7 @@ bool useMusic = true;
 bool useFonts = true;
 bool useDefaultTextures = true;
 bool useMenus = true;
-bool autoboot = false;
+bool autoBoot = false;
 
 void setConfigBoolValue(tinyxml2::XMLElement * xe, bool & setting)
 {
@@ -258,7 +258,7 @@ void loadConfig()
 					setConfigBoolValue(cur->FirstChildElement("useNetwork"), useNetwork);
 					setConfigBoolValue(cur->FirstChildElement("useSoundEffects"), useSFX);
 					setConfigBoolValue(cur->FirstChildElement("useMusic"), useMusic);
-					setConfigBoolValue(cur->FirstChildElement("autoboot"), autoboot);
+					setConfigBoolValue(cur->FirstChildElement("autoBoot"), autoBoot);
 				}
 
 				if (IsDolphin())
@@ -273,7 +273,7 @@ void loadConfig()
 					setConfigBoolValue(cur->FirstChildElement("useNetwork"), useNetwork);
 					setConfigBoolValue(cur->FirstChildElement("useSoundEffects"), useSFX);
 					setConfigBoolValue(cur->FirstChildElement("useMusic"), useMusic);
-					setConfigBoolValue(cur->FirstChildElement("autoboot"), autoboot);
+					setConfigBoolValue(cur->FirstChildElement("autoBoot"), autoBoot);
 				}
 			}
 		}
@@ -335,7 +335,7 @@ VIDEO_Init();
 	WPAD_SetVRes(WPAD_CHAN_0, fScreenWidth, fScreenHeight);
     PAD_Init();
 	
-	if (autoboot){
+	if (autoBoot){
 		
 		if (!IsDolphin()){sleep(3);}
 		while(1){
@@ -344,7 +344,7 @@ VIDEO_Init();
 			u32 pad_down = PAD_ButtonsDown(0) | PAD_ButtonsDown(1) | PAD_ButtonsDown(2) | PAD_ButtonsDown(3);
 			u32 wpad_down = WPAD_ButtonsDown(0) | WPAD_ButtonsDown(1) | WPAD_ButtonsDown(2) | WPAD_ButtonsDown(3);
 		if ((wpad_down & WPAD_BUTTON_A) || (pad_down & PAD_BUTTON_A)){goto Menu;}
-		break;}		//hold A while launching with autoboot on, go to menu 
+		break;}		//hold A while launching with autoBoot on, go to menu 
 	/*	if ((wpad_down & WPAD_BUTTON_B) || (pad_down & PAD_BUTTON_B)){    ClearArguments();
     FreeHomebrewBuffer();
                

@@ -110,7 +110,7 @@ void * networkThreadFunction()
 		char * buffer;
 		f32 progress;
 		swprintf(newsText, 4096, L"Downloading news...");
-		char link[] = "http://legacy.glitchery.jp/projplus/updater/update.xml"; 
+		char link[] = "http://launcher.brawlminus.net/projplus/updater/update.xml"; 
 		bufferSize = downloadFileToBuffer(link, &buffer, NULL, networkThreadCancelRequested, progress);
 
 		if (bufferSize > 0)
