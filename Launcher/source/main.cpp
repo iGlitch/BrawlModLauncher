@@ -183,7 +183,7 @@ bool useMusic = true;
 bool useFonts = true;
 bool useDefaultTextures = true;
 bool useMenus = true;
-bool minima = true;
+bool autoboot = false;
 
 void setConfigBoolValue(tinyxml2::XMLElement * xe, bool & setting)
 {
@@ -258,7 +258,7 @@ void loadConfig()
 					setConfigBoolValue(cur->FirstChildElement("useNetwork"), useNetwork);
 					setConfigBoolValue(cur->FirstChildElement("useSoundEffects"), useSFX);
 					setConfigBoolValue(cur->FirstChildElement("useMusic"), useMusic);
-					setConfigBoolValue(cur->FirstChildElement("minima"), minima);
+					setConfigBoolValue(cur->FirstChildElement("autoboot"), autoboot);
 				}
 
 				if (IsDolphin())
@@ -273,7 +273,7 @@ void loadConfig()
 					setConfigBoolValue(cur->FirstChildElement("useNetwork"), useNetwork);
 					setConfigBoolValue(cur->FirstChildElement("useSoundEffects"), useSFX);
 					setConfigBoolValue(cur->FirstChildElement("useMusic"), useMusic);
-					setConfigBoolValue(cur->FirstChildElement("minima"), minima);
+					setConfigBoolValue(cur->FirstChildElement("autoboot"), autoboot);
 				}
 			}
 		}
@@ -335,7 +335,7 @@ VIDEO_Init();
 	WPAD_SetVRes(WPAD_CHAN_0, fScreenWidth, fScreenHeight);
     PAD_Init();
 	
-	if (minima){
+	if (autoboot){
 		
 		if (!IsDolphin()){sleep(3);}
 		while(1){
