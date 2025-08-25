@@ -280,7 +280,7 @@ void loadConfig()
 	}
 }
 
-void launchUsbDol()
+/*void launchUsbDol()
     {
     ClearArguments();
     FreeHomebrewBuffer();
@@ -302,7 +302,7 @@ void launchUsbDol()
     CopyHomebrewMemory(dBootElf, 0, len);
     free(dBootElf);
     BootHomebrew();
-}
+}*/
 
 int main(int argc, char **argv)
 {
@@ -361,8 +361,8 @@ VIDEO_Init();
     BootHomebrew();}*/
 			if (!IsDolphin())WPAD_Shutdown();
 			LaunchTitle();
-			if (__io_usbstorage.startup() && __io_usbstorage.isInserted()){launchUsbDol();}
-			else{BackToLoader();}
+			/*if (__io_usbstorage.startup() && __io_usbstorage.isInserted()){launchUsbDol();}
+			else*/{BackToLoader();}
 		}
 		else{
 Menu:
@@ -545,7 +545,7 @@ Menu:
 	{
 		USBAdapter_ReadBackground();
 		LaunchTitle();
-		if (__io_usbstorage.startup() && __io_usbstorage.isInserted()){launchUsbDol();}
+		//if (__io_usbstorage.startup() && __io_usbstorage.isInserted()){launchUsbDol();}
 	}
 	else if (!IsDolphin()) //won't crash dolphin
 	{
