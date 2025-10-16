@@ -607,12 +607,8 @@ bool CUpdateScene::Work()
 		launcherUpdateVersion = 0.0f;
 		swprintf(sInfoText, 255, L"Downloading update file...");
 		//random lock ups
-		if (xmlBuffer)
-		{
-			delete xmlBuffer;
-			xmlBuffer = NULL;
-		}
-		xmlBufferSize = downloadFileToBuffer("http://legacy.glitchery.jp/projplus/updater/update.xml", &xmlBuffer, sInfoText, m_bCancelUpdate, fProgressPercentage);
+		if (xmlBuffer) { free(xmlBuffer); xmlBuffer = NULL; }
+		xmlBufferSize = downloadFileToBuffer("https://launcher.brawlminus.net/projplus/updater/update.xml", &xmlBuffer, sInfoText, m_bCancelUpdate, fProgressPercentage);
 		if (xmlBufferSize <= 0)
 		{
 			swprintf(sInfoText, 255, L"Download failed. Retrying...");
@@ -731,11 +727,7 @@ bool CUpdateScene::Work()
 					do
 					{
 						int urlSelection = rand() % vURLs.size();
-						if (fileBuffer)
-						{
-							delete fileBuffer;
-							fileBuffer = NULL;
-						}
+						if (fileBuffer) { free(fileBuffer); fileBuffer = NULL; }
 
 						fileBufferSize = downloadFileToBuffer(vURLs[urlSelection], &fileBuffer, sInfoText, m_bCancelUpdate, fProgressPercentage);
 						if (fileBufferSize <= 0)
@@ -849,11 +841,7 @@ bool CUpdateScene::Work()
 						}
 
 					} while (!m_bCancelUpdate);
-					if (fileBuffer)
-					{
-						delete fileBuffer;
-						fileBuffer = NULL;
-					}
+					if (fileBuffer) { free(fileBuffer); fileBuffer = NULL; }
 				}
 			}
 		}
@@ -987,8 +975,7 @@ bool CUpdateScene::Work()
 						fProgressPercentage = 0.0f;
 						FileHolder fhTmpFile(tmpPath, "rb");
 
-						u8 * tmpBuffer;
-						tmpBuffer = malloc(4096);
+						u8 * tmpBuffer = (u8*)malloc(4096);
 						char result[33];
 						char hash[16];
 						md5_state_t state;
@@ -1007,7 +994,7 @@ bool CUpdateScene::Work()
 
 							fProgressPercentage = (f32)bytesRead / (f32)fileSize;
 						}
-						delete tmpBuffer;
+						free(tmpBuffer);
 						fProgressPercentage = 1.0f;
 
 						fhTmpFile.FClose();

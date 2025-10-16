@@ -1,6 +1,6 @@
 /* cpuid.h
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -32,8 +32,19 @@
     extern "C" {
 #endif
 
-#if defined(WOLFSSL_X86_64_BUILD) || defined(USE_INTEL_SPEEDUP) || \
-    defined(WOLFSSL_AESNI)
+#if (defined(WOLFSSL_X86_64_BUILD) || defined(USE_INTEL_SPEEDUP) || \
+    defined(WOLFSSL_AESNI) || defined(WOLFSSL_SP_X86_64_ASM)) && \
+    !defined(WOLFSSL_NO_ASM)
+    #define HAVE_CPUID
+    #define HAVE_CPUID_INTEL
+#endif
+#if (defined(WOLFSSL_AARCH64_BUILD) || (defined(__aarch64__) && \
+     defined(WOLFSSL_ARMASM))) && !defined(WOLFSSL_NO_ASM)
+    #define HAVE_CPUID
+    #define HAVE_CPUID_AARCH64
+#endif
+
+#ifdef HAVE_CPUID_INTEL
 
     #define CPUID_AVX1   0x0001
     #define CPUID_AVX2   0x0002
@@ -43,6 +54,8 @@
     #define CPUID_AESNI  0x0020
     #define CPUID_ADX    0x0040   /* ADCX, ADOX */
     #define CPUID_MOVBE  0x0080   /* Move and byte swap */
+    #define CPUID_BMI1   0x0100   /* ANDN */
+    #define CPUID_SHA    0x0200   /* SHA-1 and SHA-256 instructions */
 
     #define IS_INTEL_AVX1(f)    ((f) & CPUID_AVX1)
     #define IS_INTEL_AVX2(f)    ((f) & CPUID_AVX2)
@@ -52,7 +65,34 @@
     #define IS_INTEL_AESNI(f)   ((f) & CPUID_AESNI)
     #define IS_INTEL_ADX(f)     ((f) & CPUID_ADX)
     #define IS_INTEL_MOVBE(f)   ((f) & CPUID_MOVBE)
+    #define IS_INTEL_BMI1(f)    ((f) & CPUID_BMI1)
+    #define IS_INTEL_SHA(f)     ((f) & CPUID_SHA)
 
+#elif defined(HAVE_CPUID_AARCH64)
+
+    #define CPUID_AES         0x0001    /* AES enc/dec */
+    #define CPUID_PMULL       0x0002    /* Carryless multiplication */
+    #define CPUID_SHA256      0x0004    /* SHA-256 digest */
+    #define CPUID_SHA512      0x0008    /* SHA-512 digest */
+    #define CPUID_RDM         0x0010    /* SQRDMLAH and SQRDMLSH */
+    #define CPUID_SHA3        0x0020    /* SHA-3 digest */
+    #define CPUID_SM3         0x0040    /* SM3 digest */
+    #define CPUID_SM4         0x0080    /* SM4 enc/dec */
+    #define CPUID_SB          0x0100    /* Speculation barrier */
+
+    #define IS_AARCH64_AES(f)       ((f) & CPUID_AES)
+    #define IS_AARCH64_PMULL(f)     ((f) & CPUID_PMULL)
+    #define IS_AARCH64_SHA256(f)    ((f) & CPUID_SHA256)
+    #define IS_AARCH64_SHA512(f)    ((f) & CPUID_SHA512)
+    #define IS_AARCH64_RDM(f)       ((f) & CPUID_RDM)
+    #define IS_AARCH64_SHA3(f)      ((f) & CPUID_SHA3)
+    #define IS_AARCH64_SM3(f)       ((f) & CPUID_SM3)
+    #define IS_AARCH64_SM4(f)       ((f) & CPUID_SM4)
+    #define IS_AARCH64_SB(f)        ((f) & CPUID_SB)
+
+#endif
+
+#ifdef HAVE_CPUID
     void cpuid_set_flags(void);
     word32 cpuid_get_flags(void);
 

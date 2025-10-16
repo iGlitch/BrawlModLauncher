@@ -39,7 +39,7 @@
 	} profiler_t;
 
 	void profiler_create(profiler_t* pjob, char* pname);
-	void profiler_output(profiler_t* pjob);
+	//void profiler_output(profiler_t* pjob);
 	void profiler_start(profiler_t* pjob);
 	void profiler_stop(profiler_t* pjob);
 	void profiler_reset(profiler_t* pjob);

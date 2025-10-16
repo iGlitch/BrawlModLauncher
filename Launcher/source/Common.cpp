@@ -9,7 +9,7 @@ extern u8 * configFileData;
 extern int configFileSize;
 extern u8 * infoFileData;
 extern int infoFileSize;
-
+extern char configBasePath[ISFS_MAXPATH];
 
 const char* GetFileName(const char* path)
 {
@@ -68,16 +68,25 @@ void ToLower(const char* str, char* buf)
 
 void loadInfoFile()
 {
-	FileHolder infoFile("sd:/Project+/info.xml", "r");
-	if (infoFile.IsOpen())
-	{
-		if (infoFileSize != 0)
-			delete infoFileData;
-		infoFileSize = infoFile.Size();
-		infoFileData = (u8*)malloc(infoFileSize);
-		memset(infoFileData, 0, infoFileSize);
+    char infoPath[ISFS_MAXPATH];
+    memset(infoPath, 0, sizeof(infoPath));
 
-		infoFile.FRead(infoFileData, infoFileSize, 1);
-		infoFile.FClose();
-	}
+    size_t len = strlen(configBasePath);
+    if (len && configBasePath[len - 1] == '/')
+        snprintf(infoPath, sizeof(infoPath), "%sinfo.xml", configBasePath);
+    else
+        snprintf(infoPath, sizeof(infoPath), "%s/info.xml", configBasePath);
+
+    FileHolder infoFile(infoPath, "r");
+    if (infoFile.IsOpen())
+    {
+        if (infoFileSize != 0)
+            delete infoFileData;
+        infoFileSize = infoFile.Size();
+        infoFileData = (u8*)malloc(infoFileSize);
+        memset(infoFileData, 0, infoFileSize);
+
+        infoFile.FRead(infoFileData, infoFileSize, 1);
+        infoFile.FClose();
+    }
 }

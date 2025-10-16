@@ -1,6 +1,6 @@
 /* silabs_ecc.h
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -33,7 +33,6 @@
 #include <sl_se_manager_key_derivation.h>
 #include <sl_se_manager_signature.h>
 
-typedef enum ecc_curve_id ecc_curve_id;
 typedef struct ecc_key ecc_key;
 
 int silabs_ecc_sign_hash (const byte* in, word32 inlen,
@@ -44,19 +43,18 @@ int silabs_ecc_verify_hash (const byte* sig, word32 siglen,
                             int* stat, ecc_key* key);
 
 
-
 int silabs_ecc_make_key(ecc_key* key, int keysize);
 
-int silabs_ecc_import(ecc_key* key, word32 keysize);
-
-int silabs_ecc_import_private(ecc_key* key, word32 keysize);
-
-int silabs_ecc_sig_to_rs(ecc_key* key, word32 keySz);
-
-int silabs_ecc_import_private_raw(ecc_key* key, word32 keySz, const char* d, int encType);
+int silabs_ecc_import(ecc_key* key, word32 keysize, int pub, int priv);
+int silabs_ecc_export_public(ecc_key* key, sl_se_key_descriptor_t* seKey);
 
 int silabs_ecc_shared_secret(ecc_key* private_key, ecc_key* public_key,
                              byte* out, word32* outlen);
+
+#if (_SILICON_LABS_SECURITY_FEATURE == _SILICON_LABS_SECURITY_FEATURE_VAULT)
+int silabs_ecc_load_vault(ecc_key* key);
+#endif
+
 
 #endif /* WOLFSSL_SILABS_SE_ACCEL */
 

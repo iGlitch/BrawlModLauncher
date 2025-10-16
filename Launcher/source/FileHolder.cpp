@@ -1,8 +1,6 @@
 #include "FileHolder.h"
 #include <stdarg.h>
 
-
-
 FileHolder::FileHolder(const char* paramFilename,const char* mode)
 {
 	_fp = NULL;

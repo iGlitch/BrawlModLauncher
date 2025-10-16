@@ -20,6 +20,7 @@
 static lwp_t networkThread = LWP_THREAD_NULL;
 void * networkThreadFunction();
 wchar_t * newsText;
+static void* s_netStack = NULL;
 bool networkInit = false;
 bool _networkOK = false;
 bool _netInitComplete = false;
@@ -42,7 +43,9 @@ bool Network_Init()
 
 void Network_Start()
 {
-	LWP_CreateThread(&networkThread, (void *)networkThreadFunction, NULL, NULL, 0, 16);
+	const u32 STACK_SZ = 64 * 1024;
+	s_netStack = memalign(32, STACK_SZ);
+	LWP_CreateThread(&networkThread, (void *)networkThreadFunction, NULL, s_netStack, STACK_SZ, 16);
 	LWP_ResumeThread(networkThread);
 }
 
@@ -55,7 +58,7 @@ void SleepDuringWork(int milliseconds)
 			return;
 	}
 }
-
+static bool s_offlineSticky = false;
 void * networkThreadFunction()
 {
 	bool firstWiFiAttempt = true;
@@ -105,12 +108,24 @@ void * networkThreadFunction()
 
 		if (networkThreadCancelRequested)
 			break;
+		
+		// If Wi‑Fi init failed at least once, go permanently offline this session.
+        if (noWifiAlerted || !_networkOK) {
+            s_offlineSticky = true;
+        }
+
+        // Not connected? Stay offline and DO NOT try HTTP.
+        if (s_offlineSticky) {
+            swprintf(newsText, 4096, L"Offline. News disabled.");
+            SleepDuringWork(5000);   // short, cancel-aware backoff
+            continue;
+        }
 
 		int bufferSize = 0;
-		char * buffer;
+		char * buffer = NULL;
 		f32 progress;
 		swprintf(newsText, 4096, L"Downloading news...");
-		char link[] = "http://launcher.brawlminus.net/projplus/updater/update.xml"; 
+		char link[] = "https://launcher.brawlminus.net/projplus/updater/update.xml"; 
 		bufferSize = downloadFileToBuffer(link, &buffer, NULL, networkThreadCancelRequested, progress);
 
 		if (bufferSize > 0)
@@ -144,7 +159,7 @@ void * networkThreadFunction()
 					if (cur->FirstChild() && cur->FirstChild()->ToText())
 					{
 						char * text = cur->FirstChild()->ToText()->Value();
-						swprintf(newsText, 4096, L"%s", text);
+						swprintf(newsText, 4096, L"%hs", text);
 					}
 					else
 					{
@@ -153,18 +168,15 @@ void * networkThreadFunction()
 					}
 				}
 			}
-			if (failed)
-				SleepDuringWork(5 * 60 * 1000);
-				//SleepDuringWork(5000);
-			else
-				SleepDuringWork(5 * 60 * 1000);
+			SleepDuringWork(5 * 60 * 1000);
 		}
 		else
 		{
 			swprintf(newsText, 4096, L"Failed to download news...");
 			sleep(5);
+			SleepDuringWork(5 * 60 * 1000);
 		}
-		free(buffer);
+		if (buffer) free(buffer);
 
 	}
 	while (net_get_status() == -EBUSY)
@@ -179,8 +191,11 @@ void * networkThreadFunction()
 void Network_Stop()
 {
 	networkThreadCancelRequested = true;
+	net_deinit();
+	net_wc24cleanup();
 	while (!networkThreadComplete)
 		usleep(1000);
-	free(newsText);
+	if (newsText) { free(newsText); newsText = NULL; }
+	if (s_netStack) { free(s_netStack); s_netStack = NULL; }
 }
 

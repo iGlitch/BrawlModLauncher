@@ -1,6 +1,6 @@
 /* coding.h
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -34,6 +34,9 @@
 
 
 WOLFSSL_API int Base64_Decode(const byte* in, word32 inLen, byte* out,
+                               word32* outLen);
+
+WOLFSSL_API int Base64_Decode_nonCT(const byte* in, word32 inLen, byte* out,
                                word32* outLen);
 
 #if defined(OPENSSL_EXTRA) || defined(SESSION_CERTS) || defined(WOLFSSL_KEY_GEN) \
@@ -79,6 +82,8 @@ WOLFSSL_API int Base64_Decode(const byte* in, word32 inLen, byte* out,
     int Base16_Encode(const byte* in, word32 inLen, byte* out, word32* outLen);
 #endif
 
+ WOLFSSL_LOCAL int Base64_SkipNewline(const byte* in, word32* inLen,
+            word32* outJ);
 
 #ifdef __cplusplus
     } /* extern "C" */

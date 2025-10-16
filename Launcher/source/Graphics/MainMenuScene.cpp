@@ -272,7 +272,7 @@ void CMainMenuScene::Draw()
 		drawInfoBox(yPos + offset, 36.0F, L"");
 		break;
 	case 0:
-		drawInfoBox(yPos + offset, 36.0F, L"Play Project+. A copy of Super Smash Bros. Brawl is required.");
+		drawInfoBox(yPos + offset, 36.0F, L"A copy of Super Smash Bros. Brawl is required to play mods.");
 		break;
 	case 1:
 		drawInfoBox(yPos + offset, 36.0F, L"Check for updates.");

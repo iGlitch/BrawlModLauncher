@@ -28,38 +28,39 @@ extern "C" {
 
 class SzFile
 {
-	public:
-		//!Constructor
-		SzFile(const char *filepath);
-		//!Destructor
-		~SzFile();
-		//!Check if it is a 7zip file
-		bool Is7ZipFile (const char *buffer);
-		//!Get the archive file structure
-		ArchiveFileStruct * GetFileStruct(int fileIndx);
-		//!Extract file from a 7zip to file
-		int ExtractFile(int fileindex, const char * outpath, bool withpath = false);
-		//!Extract file into memory. Pointer "dst" must have enough space.
-		//Return value is the size of the extracted filesize
-		int ExtractIntoMemory(int fileindex,u8* dst,int dstSize);
-		//!Extract all files from the 7zip to a path
-		int ExtractAll(const char * destpath);
-		//!Get the total amount of items inside the archive
-		u32 GetItemCount();
+        public:
+                //!Constructor
+                SzFile(const char *filepath);
+                //!Destructor
+                ~SzFile();
+                //!Check if it is a 7zip file
+                bool Is7ZipFile (const char *buffer);
+                //!Get the archive file structure
+                ArchiveFileStruct * GetFileStruct(int fileIndx);
+                //!Extract file from a 7zip to file
+                int ExtractFile(int fileindex, const char * outpath, bool withpath = false);
+                //!Extract file into memory. Pointer "dst" must have enough space.
+                //Return value is the size of the extracted filesize
+                int ExtractIntoMemory(int fileindex,u8* dst,int dstSize);
+                //!Extract all files from the 7zip to a path
+                int ExtractAll(const char * destpath);
+                //!Get the total amount of items inside the archive
+                u32 GetItemCount();
 
-	private:
-		char *GetUtf8Filename(int ind);
-		void DisplayError(SRes res);
+                SRes SzResult;
 
-		ArchiveFileStruct CurArcFile;
-		SRes SzResult;
-		CFileInStream archiveStream;
-		CLookToRead lookStream;
-		CSzArEx SzArchiveDb;
-		ISzAlloc SzAllocImp;
-		ISzAlloc SzAllocTempImp;
-		UInt32 SzBlockIndex;
-		CSzFileItem * SzFileItem;
+        private:
+                char *GetUtf8Filename(int ind);
+                void DisplayError(SRes res);
+
+                ArchiveFileStruct CurArcFile;
+                CFileInStream archiveStream;
+                CLookToRead lookStream;
+                CSzArEx SzArchiveDb;
+                ISzAlloc SzAllocImp;
+                ISzAlloc SzAllocTempImp;
+                UInt32 SzBlockIndex;
+                CSzFileItem * SzFileItem;
 };
 
 #endif

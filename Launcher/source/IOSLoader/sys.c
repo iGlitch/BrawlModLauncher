@@ -3,6 +3,7 @@
 #include <string.h>
 #include <gctypes.h>
 #include <stdio.h>
+#include <malloc.h>
 #include <gccore.h>
 #include <ogcsys.h>
 #include "sys.h"

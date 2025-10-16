@@ -46,7 +46,7 @@
 SzFile::SzFile(const char *filepath)
 {
 	memset(&CurArcFile, 0, sizeof(CurArcFile));
-
+	SzResult = SZ_OK;
 	if(InFile_Open(&archiveStream.file, filepath))
 	{
 		SzResult = 9;

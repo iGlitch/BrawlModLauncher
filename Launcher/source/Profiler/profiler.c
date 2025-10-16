@@ -30,7 +30,7 @@
 #include "types.h"
 #include "timer.h"
 #include "profiler.h"
-	static u64 __ticks_to_us(u64 ticks)
+	/*static u64 __ticks_to_us(u64 ticks)
 	{
 		return (((ticks)* 8) / (TIMER_CLK / 125000));
 	}
@@ -39,7 +39,7 @@
 	{
 		return (((ticks)* ((CPU_CLK * 2) / TIMER_CLK)) / 2);
 	}
-
+	*/
 	void profiler_create(profiler_t* pjob, char* pname)
 	{
 		pjob->active = 0;
@@ -92,6 +92,7 @@
 		pjob->start_time = 0;
 	};
 
+	/*
 	void profiler_output(profiler_t* pjob)
 	{
 		char* name;
@@ -112,3 +113,4 @@
 		total_us = __ticks_to_us(pjob->total_time);
 		total_cycles = __ticks_to_cycles(pjob->total_time);
 	}
+	*/

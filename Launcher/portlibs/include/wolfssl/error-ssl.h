@@ -1,6 +1,6 @@
 /* error-ssl.h
  *
- * Copyright (C) 2006-2020 wolfSSL Inc.
+ * Copyright (C) 2006-2025 wolfSSL Inc.
  *
  * This file is part of wolfSSL.
  *
@@ -30,7 +30,24 @@
     extern "C" {
 #endif
 
+#ifdef WOLFSSL_DEBUG_TRACE_ERROR_CODES_H
+    #include <wolfssl/debug-untrace-error-codes.h>
+#endif
+
 enum wolfSSL_ErrorCodes {
+    WOLFSSL_FATAL_ERROR          =   -1,   /* must be -1 for backward compat. */
+
+    /* negative counterparts to namesake positive constants in ssl.h */
+    WOLFSSL_ERROR_WANT_READ_E    =   -2,
+    WOLFSSL_ERROR_WANT_WRITE_E   =   -3,
+    WOLFSSL_ERROR_WANT_X509_LOOKUP_E = -4,
+    WOLFSSL_ERROR_SYSCALL_E      =   -5,
+    WOLFSSL_ERROR_ZERO_RETURN_E  =   -6,
+    WOLFSSL_ERROR_WANT_CONNECT_E =   -7,
+    WOLFSSL_ERROR_WANT_ACCEPT_E  =   -8,
+
+    WOLFSSL_FIRST_E              = -301,   /* start of native TLS codes */
+
     INPUT_CASE_ERROR             = -301,   /* process input state error */
     PREFIX_ERROR                 = -302,   /* bad index to key rounds  */
     MEMORY_ERROR                 = -303,   /* out of memory            */
@@ -52,7 +69,6 @@ enum wolfSSL_ErrorCodes {
     RSA_PRIVATE_ERROR            = -318,   /* error during rsa priv op */
     NO_DH_PARAMS                 = -319,   /* server missing DH params */
     BUILD_MSG_ERROR              = -320,   /* build message failure    */
-
     BAD_HELLO                    = -321,   /* client hello malformed   */
     DOMAIN_NAME_MISMATCH         = -322,   /* peer subject name mismatch */
     WANT_READ                    = -323,   /* want read, call again    */
@@ -76,16 +92,14 @@ enum wolfSSL_ErrorCodes {
     ZERO_RETURN                  = -343,   /* peer sent close notify */
     SIDE_ERROR                   = -344,   /* wrong client/server type */
     NO_PEER_CERT                 = -345,   /* peer didn't send key */
-    NTRU_KEY_ERROR               = -346,   /* NTRU key error  */
-    NTRU_DRBG_ERROR              = -347,   /* NTRU drbg error  */
-    NTRU_ENCRYPT_ERROR           = -348,   /* NTRU encrypt error  */
-    NTRU_DECRYPT_ERROR           = -349,   /* NTRU decrypt error  */
+
     ECC_CURVETYPE_ERROR          = -350,   /* Bad ECC Curve Type */
     ECC_CURVE_ERROR              = -351,   /* Bad ECC Curve */
     ECC_PEERKEY_ERROR            = -352,   /* Bad Peer ECC Key */
     ECC_MAKEKEY_ERROR            = -353,   /* Bad Make ECC Key */
     ECC_EXPORT_ERROR             = -354,   /* Bad ECC Export Key */
     ECC_SHARED_ERROR             = -355,   /* Bad ECC Shared Secret */
+
     NOT_CA_ERROR                 = -357,   /* Not a CA cert error */
 
     BAD_CERT_MANAGER_ERROR       = -359,   /* Bad Cert Manager */
@@ -101,7 +115,7 @@ enum wolfSSL_ErrorCodes {
     COOKIE_ERROR                 = -369,   /* dtls cookie error */
     SEQUENCE_ERROR               = -370,   /* dtls sequence error */
     SUITES_ERROR                 = -371,   /* suites pointer error */
-
+    MAX_CERT_EXTENSIONS_ERR      = -372,   /* max cert extension exceeded */
     OUT_OF_ORDER_E               = -373,   /* out of order message */
     BAD_KEA_TYPE_E               = -374,   /* bad KEA type found */
     SANITY_CIPHER_E              = -375,   /* sanity check on cipher error */
@@ -113,6 +127,7 @@ enum wolfSSL_ErrorCodes {
     UNKNOWN_SNI_HOST_NAME_E      = -381,   /* Unrecognized host name Error */
     UNKNOWN_MAX_FRAG_LEN_E       = -382,   /* Unrecognized max frag len Error */
     KEYUSE_SIGNATURE_E           = -383,   /* KeyUse digSignature error */
+
     KEYUSE_ENCIPHER_E            = -385,   /* KeyUse keyEncipher error */
     EXTKEYUSE_AUTH_E             = -386,   /* ExtKeyUse server|client_auth */
     SEND_OOB_READ_E              = -387,   /* Send Cb out of bounds read */
@@ -170,22 +185,75 @@ enum wolfSSL_ErrorCodes {
     DTLS_SIZE_ERROR              = -439,   /* Trying to send too much data */
     NO_CERT_ERROR                = -440,   /* TLS1.3 - no cert set error */
     APP_DATA_READY               = -441,   /* DTLS1.2 application data ready for read */
+    TOO_MUCH_EARLY_DATA          = -442,   /* Too much Early data */
+    SOCKET_FILTERED_E            = -443,   /* Session stopped by network filter */
+    HTTP_RECV_ERR                = -444,   /* HTTP Receive error */
+    HTTP_HEADER_ERR              = -445,   /* HTTP Header error */
+    HTTP_PROTO_ERR               = -446,   /* HTTP Protocol error */
+    HTTP_STATUS_ERR              = -447,   /* HTTP Status error */
+    HTTP_VERSION_ERR             = -448,   /* HTTP Version error */
+    HTTP_APPSTR_ERR              = -449,   /* HTTP Application string error */
+    UNSUPPORTED_PROTO_VERSION    = -450,   /* bad/unsupported protocol version*/
+    FALCON_KEY_SIZE_E            = -451,   /* Wrong key size for Falcon. */
+    QUIC_TP_MISSING_E            = -452,   /* QUIC transport parameter missing */
+    DILITHIUM_KEY_SIZE_E         = -453,   /* Wrong key size for Dilithium. */
+    DTLS_CID_ERROR               = -454,   /* Wrong or missing CID */
+    DTLS_TOO_MANY_FRAGMENTS_E    = -455,   /* Received too many fragments */
+    QUIC_WRONG_ENC_LEVEL         = -456,   /* QUIC data received on wrong encryption level */
+    DUPLICATE_TLS_EXT_E          = -457,   /* Duplicate TLS extension in msg. */
 
-    /* add strings to wolfSSL_ERR_reason_error_string in internal.c !!!!! */
+    /* legacy CyaSSL compat layer error codes */
+    WOLFSSL_ALPN_NOT_FOUND       = -458,   /* TLS extension not found */
+    WOLFSSL_BAD_CERTTYPE         = -459,   /* Certificate type not supported */
+    WOLFSSL_BAD_STAT             = -460,   /* not used */
+    WOLFSSL_BAD_PATH             = -461,   /* No certificates found at designated path */
+    WOLFSSL_BAD_FILETYPE         = -462,   /* Data format not supported */
+    WOLFSSL_BAD_FILE             = -463,   /* Input/output error on file */
+    WOLFSSL_NOT_IMPLEMENTED      = -464,   /* Function not implemented */
+    WOLFSSL_UNKNOWN              = -465,   /* Unknown algorithm (EVP) */
 
-    /* begin negotiation parameter errors */
+    /* negotiation parameter errors */
     UNSUPPORTED_SUITE            = -500,   /* unsupported cipher suite */
     MATCH_SUITE_ERROR            = -501,   /* can't match cipher suite */
     COMPRESSION_ERROR            = -502,   /* compression mismatch */
     KEY_SHARE_ERROR              = -503,   /* key share mismatch */
     POST_HAND_AUTH_ERROR         = -504,   /* client won't do post-hand auth */
-    HRR_COOKIE_ERROR             = -505    /* HRR msg cookie mismatch */
-    /* end negotiation parameter errors only 10 for now */
-    /* add strings to wolfSSL_ERR_reason_error_string in internal.c !!!!! */
+    HRR_COOKIE_ERROR             = -505,   /* HRR msg cookie mismatch */
+    UNSUPPORTED_CERTIFICATE      = -506,   /* unsupported certificate type */
+    DTLS_PARTIAL_RECORD_READ     = -455,   /* received a partial record in a datagram */
 
-    /* no error stings go down here, add above negotiation errors !!!! */
+    /* PEM and EVP errors */
+    WOLFSSL_PEM_R_NO_START_LINE_E = -507,
+    WOLFSSL_PEM_R_PROBLEMS_GETTING_PASSWORD_E = -508,
+    WOLFSSL_PEM_R_BAD_PASSWORD_READ_E = -509,
+    WOLFSSL_PEM_R_BAD_DECRYPT_E  = -510,
+    WOLFSSL_ASN1_R_HEADER_TOO_LONG_E = -511,
+
+    WOLFSSL_EVP_R_BAD_DECRYPT_E  = -512,
+    WOLFSSL_EVP_R_BN_DECODE_ERROR = -513,
+    WOLFSSL_EVP_R_DECODE_ERROR   = -514,
+    WOLFSSL_EVP_R_PRIVATE_KEY_DECODE_ERROR = -515,
+
+    CRYPTO_POLICY_FORBIDDEN      = -516,   /* operation forbidden by system
+                                            * crypto-policy */
+
+    WOLFSSL_LAST_E               = -516
+
+    /* codes -1000 to -1999 are reserved for wolfCrypt. */
 };
 
+wc_static_assert((int)WC_LAST_E <= (int)WOLFSSL_LAST_E);
+
+/* I/O Callback default errors */
+enum IOerrors {
+    WOLFSSL_CBIO_ERR_GENERAL    = -1,     /* general unexpected err */
+    WOLFSSL_CBIO_ERR_WANT_READ  = -2,     /* need to call read  again */
+    WOLFSSL_CBIO_ERR_WANT_WRITE = -2,     /* need to call write again */
+    WOLFSSL_CBIO_ERR_CONN_RST   = -3,     /* connection reset */
+    WOLFSSL_CBIO_ERR_ISR        = -4,     /* interrupt */
+    WOLFSSL_CBIO_ERR_CONN_CLOSE = -5,     /* connection closed or epipe */
+    WOLFSSL_CBIO_ERR_TIMEOUT    = -6      /* socket timeout */
+};
 
 #if defined(WOLFSSL_CALLBACKS) || defined(OPENSSL_EXTRA)
     enum {
@@ -198,6 +266,11 @@ enum wolfSSL_ErrorCodes {
 WOLFSSL_LOCAL
 void SetErrorString(int err, char* buff);
 
+#if defined(WOLFSSL_DEBUG_TRACE_ERROR_CODES) && \
+        (defined(BUILDING_WOLFSSL) || \
+         defined(WOLFSSL_DEBUG_TRACE_ERROR_CODES_ALWAYS))
+    #include <wolfssl/debug-trace-error-codes.h>
+#endif
 
 #ifdef __cplusplus
     }  /* extern "C" */
