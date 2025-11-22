@@ -25,14 +25,14 @@ INCLUDES	:=
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-CFLAGS	=-g -O3 -mrvl -Wall $(MACHDEP) $(INCLUDE) -fpermissive
+CFLAGS	=-g -O3 -mrvl -Wall $(MACHDEP) $(INCLUDE) -fpermissive -DWOLFSSL_USER_SETTINGS
 CXXFLAGS	=	$(CFLAGS) -std=gnu++0x -w
 
-LDFLAGS	= -g	$(MACHDEP) -mrvl -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80dfff00
+LDFLAGS	= -g	$(MACHDEP) -mrvl -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80A00000
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:=	 -ldb -lsevenzip -lfat -lwiiuse -lbte -lasnd -logc -lm -ldi -lfreetype -lmetaphrasis -lz
+LIBS	:=	 -lwolfssl -ldb -lsevenzip -lfat -lntfs -lwiiuse -lbte -lasnd -logc -lm -ldi -lfreetype -lmetaphrasis -lz
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -63,6 +63,8 @@ CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 sFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.S)))
 BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
+DOLFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.dol)))
+ELFFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.elf)))
 SCFFILES	:=	$(foreach dir,$(TEXTURES),$(notdir $(wildcard $(dir)/*.scf)))
 TPLFILES	:=	$(SCFFILES:.scf=.tpl)
 
@@ -140,11 +142,17 @@ $(OUTPUT).elf: $(OFILES)
 	@echo $(notdir $<)
 	$(bin2o)
 
+#%.bin.o : %.bin
+#	@echo $(notdir $<)
+#	@bin2s -a 32 $< | $(AS) -o $(@)
+
+%.dol.o : %.dol
+	@echo $(notdir $<)
+	$(bin2o)
 
 %.pcm.o : %.pcm
 	@echo $(notdir $<)
 	$(bin2o)
-
 
 %.ttf.o	:	%.ttf
 	@echo $(notdir $<)
@@ -158,9 +166,7 @@ $(OUTPUT).elf: $(OFILES)
 	@echo $(notdir $<)
 	@$(bin2o)
 
-
 -include $(DEPSDIR)/*.d
-
 
 #---------------------------------------------------------------------------------
 endif
