@@ -117,6 +117,22 @@ bool Popup::decrementSelection()
 	m_iSelectedIndex--;
 	return true;
 }
+bool Popup::toggleSelection()
+{
+	if (m_iSelectedIndex == -1)
+		return false;
+	if (m_iSelectedIndex == 0)
+	{
+		m_iSelectedIndex = 1;
+		return true;
+	}
+	else if (m_iSelectedIndex == 1)
+	{
+		m_iSelectedIndex = 0;
+		return true;
+	}
+	return false;
+}
 
 void Popup::reset()
 {

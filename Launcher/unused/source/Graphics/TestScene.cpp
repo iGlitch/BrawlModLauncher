@@ -63,12 +63,12 @@ void CTestScene::Unload()
 
 };
 
-void CTestScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed)
+void CTestScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed, bool powerButtonPressed, bool resetButtonPressed)
 {
 	if (m_iDrawFrameNumber < 30)
 		return;
 
-	if (gcPressed & PAD_BUTTON_B || wiiPressed & WPAD_BUTTON_B)
+	if (gcPressed & PAD_BUTTON_B || wiiPressed & WPAD_BUTTON_B || (powerButtonPressed && m_iMenuSelectedIndex == -1))
 	{
 		m_eNextScreen = SCENE_MAIN_MENU;
 		playSFX(SFX_BACK);

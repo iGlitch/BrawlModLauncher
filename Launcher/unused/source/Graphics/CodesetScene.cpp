@@ -84,7 +84,7 @@ void CPatchScene::Unload()
 
 };
 
-void CPatchScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed)
+void CPatchScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed, bool powerButtonPressed, bool resetButtonPressed)
 {
 	if (m_bCancelPatch)
 		return;

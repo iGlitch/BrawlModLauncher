@@ -28,7 +28,7 @@ INCLUDES	:=
 CFLAGS	=-g -O3 -mrvl -Wall $(MACHDEP) $(INCLUDE) -fpermissive -DWOLFSSL_USER_SETTINGS
 CXXFLAGS	=	$(CFLAGS) -std=gnu++0x -w
 
-LDFLAGS	= -g	$(MACHDEP) -mrvl -Wl,-Map,$(notdir $@).map,--section-start,.init=0x80A00000
+LDFLAGS	= -g	$(MACHDEP) -mrvl -Wl,-Map,$(notdir $@).map,-s,--section-start,.init=0x80A00000
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------

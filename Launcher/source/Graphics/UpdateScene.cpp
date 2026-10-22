@@ -144,7 +144,7 @@ void CUpdateScene::Unload()
 
 };
 
-void CUpdateScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed)
+void CUpdateScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed, bool powerButtonPressed, bool resetButtonPressed)
 {
 	if (m_bCancelUpdate)
 		return;
@@ -184,8 +184,22 @@ void CUpdateScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStick
 
 	}
 
+	if (powerButtonPressed)
+	{
+		if (showCancelPopup && cancelPopup->toggleSelection())
+			playSFX(SFX_SELECT);
+		else if (showInfoFileMissingPopup && infoFileMissingPopup->toggleSelection())
+			playSFX(SFX_SELECT);
+		else if (showConfirmLaunchPopup && confirmLaunchPopup->toggleSelection())
+			playSFX(SFX_SELECT);
+		else if (showConfirmUpdatePopup && confirmUpdatePopup->toggleSelection())
+			playSFX(SFX_SELECT);
+		else if (showPatchVerificationFailedPopup && patchVerificationFailedPopup->toggleSelection())
+			playSFX(SFX_SELECT);
+	}
 
-	if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START)
+
+	if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START || resetButtonPressed)
 	{
 		if (showCancelPopup)
 		{
@@ -676,8 +690,8 @@ bool CUpdateScene::Work()
 
 									xeUpdateUrl = xeLauncherUpdate->FirstChildElement("url");
 									while (xeUpdateUrl)
-									{
-										const char * sURL = xeUpdateUrl->FirstChild()->ToText()->Value();
+										{
+											const char * sURL = xeUpdateUrl->FirstChild()->ToText()->Value();
 										vURLs.push_back(sURL);
 										xeUpdateUrl = xeUpdateUrl->NextSiblingElement("url");
 									}
@@ -813,7 +827,7 @@ bool CUpdateScene::Work()
 							if (m_bCancelUpdate)
 								break;
 							if (m_bRestartLauncher)
-							{								
+							{
 								if (xmlBuffer)
 								{
 									delete xmlBuffer;
@@ -890,8 +904,8 @@ bool CUpdateScene::Work()
 
 									xeUpdateUrl = xePMUpdate->FirstChildElement("url");
 									while (xeUpdateUrl)
-									{
-										const char * sURL = xeUpdateUrl->FirstChild()->ToText()->Value();
+										{
+											const char * sURL = xeUpdateUrl->FirstChild()->ToText()->Value();
 										vURLs.push_back(sURL);
 										xeUpdateUrl = xeUpdateUrl->NextSiblingElement("url");
 									}

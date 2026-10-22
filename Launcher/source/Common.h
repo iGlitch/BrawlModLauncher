@@ -33,6 +33,7 @@ enum LoadMethod {
     LOAD_USB = 2
 };
 extern LoadMethod loadMethod;
+extern bool isBadBoot;
 extern bool autoBoot;
 extern bool debugToFile;
 

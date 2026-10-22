@@ -72,14 +72,14 @@ void CToolsScene::Unload()
 	
 };
 
-void CToolsScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed)
+void CToolsScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed, bool powerButtonPressed, bool resetButtonPressed)
 {
 	if (m_iDrawFrameNumber < 30 || m_iMenuSelectedIndex == -1)
 		return;
 
 	if (showAboutPopup)
 	{
-		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A)
+		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || resetButtonPressed)
 		{
 			if (aboutPopup->getSelectedIndex() == 0)
 			{
@@ -108,7 +108,7 @@ void CToolsScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX
 			playSFX(SFX_SELECT);
 		}
 
-		if ((dStickY < -STICK_DEADZONE && m_sPrevDStickY >= -STICK_DEADZONE) || (gcPressed & PAD_BUTTON_DOWN || wiiPressed & WPAD_BUTTON_DOWN)){
+		if ((dStickY < -STICK_DEADZONE && m_sPrevDStickY >= -STICK_DEADZONE) || (gcPressed & PAD_BUTTON_DOWN || wiiPressed & WPAD_BUTTON_DOWN || powerButtonPressed)){
 			if (m_iMenuSelectedIndex == 3)
 				m_iMenuSelectedIndex = 0L;
 			else
@@ -117,7 +117,7 @@ void CToolsScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX
 			playSFX(SFX_SELECT);
 		}
 
-		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A)
+		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || resetButtonPressed)
 		{
 			switch (m_iMenuSelectedIndex)
 			{
@@ -139,7 +139,7 @@ void CToolsScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX
 		}
 		else
 		{
-			if (gcPressed & PAD_BUTTON_B || wiiPressed & WPAD_BUTTON_B)
+			if (gcPressed & PAD_BUTTON_B || wiiPressed & WPAD_BUTTON_B || (powerButtonPressed && m_iMenuSelectedIndex == -1))
 			{
 				m_iMenuSelectedIndex = 3;
 				m_eNextScreen = SCENE_MAIN_MENU;

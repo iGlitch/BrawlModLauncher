@@ -82,13 +82,13 @@ void CAddonsScene::Unload()
         addonFiles.clear();
 };
 
-void CAddonsScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed)
+void CAddonsScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed, bool powerButtonPressed, bool resetButtonPressed)
 {
         if (m_iDrawFrameNumber < 30 || m_iMenuSelectedIndex == -2 || installIndex != -1)
                 return;
         if (m_iMenuSelectedIndex == -1)
         {
-                if (gcPressed & PAD_BUTTON_B || wiiPressed & WPAD_BUTTON_B)
+                if (gcPressed & PAD_BUTTON_B || wiiPressed & WPAD_BUTTON_B || powerButtonPressed)
                 {
                         m_eNextScreen = SCENE_MAIN_MENU;
                         playSFX(SFX_BACK);
@@ -96,8 +96,20 @@ void CAddonsScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStick
                 return;
         }
 
+        if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START || resetButtonPressed)
+        {
+                installIndex = m_iMenuSelectedIndex;
+                playSFX(SFX_CONFIRM);
+        }
+        else
+        {
+                if (gcPressed & PAD_BUTTON_B || wiiPressed & WPAD_BUTTON_B || (powerButtonPressed && m_iMenuSelectedIndex == addonFiles.size() - 1))
+                {
+                        m_eNextScreen = SCENE_MAIN_MENU;
+                        playSFX(SFX_BACK);
+                }
 
-
+        }
 
         if ((dStickY > STICK_DEADZONE && m_sPrevDStickY <= STICK_DEADZONE) || gcPressed & PAD_BUTTON_UP || wiiPressed & WPAD_BUTTON_UP)
         {
@@ -109,28 +121,13 @@ void CAddonsScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStick
                 playSFX(SFX_SELECT);
         }
 
-        if ((dStickY < -STICK_DEADZONE && m_sPrevDStickY >= -STICK_DEADZONE) || (gcPressed & PAD_BUTTON_DOWN || wiiPressed & WPAD_BUTTON_DOWN)){
+        if ((dStickY < -STICK_DEADZONE && m_sPrevDStickY >= -STICK_DEADZONE) || (gcPressed & PAD_BUTTON_DOWN || wiiPressed & WPAD_BUTTON_DOWN || powerButtonPressed && !(m_iMenuSelectedIndex == addonFiles.size() - 1))){
                 if (m_iMenuSelectedIndex == addonFiles.size() - 1)
                         m_iMenuSelectedIndex = 0L;
                 else
                         m_iMenuSelectedIndex++;
                 m_iMenuSelectionFrame = 0L;
                 playSFX(SFX_SELECT);
-        }
-
-        if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START)
-        {
-                installIndex = m_iMenuSelectedIndex;
-                playSFX(SFX_CONFIRM);
-        }
-        else
-        {
-                if (gcPressed & PAD_BUTTON_B || wiiPressed & WPAD_BUTTON_B)
-                {
-                        m_eNextScreen = SCENE_MAIN_MENU;
-                        playSFX(SFX_BACK);
-                }
-
         }
 
         m_sPrevDStickX = dStickX;

@@ -29,6 +29,7 @@ public:
 	void reset();
 	bool incrementSelection();
 	bool decrementSelection();
+	bool toggleSelection();
 	bool incrementFrameNumber();
 	int getSelectedIndex(){ return m_iSelectedIndex; };
 

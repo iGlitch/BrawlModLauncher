@@ -59,7 +59,7 @@ public:
 	virtual void Load();
 	virtual void Unload();
 	virtual void Draw();
-	virtual void HandleInputs(u32 gcPressed, s8 stickX, s8 stickY, s8 substickX, s8 substickY, u32 wiiPressed);
+	virtual void HandleInputs(u32 gcPressed, s8 stickX, s8 stickY, s8 substickX, s8 substickY, u32 wiiPressed, bool powerButtonPressed, bool resetButtonPressed);
 
 private:
 	void InitializeSettings();

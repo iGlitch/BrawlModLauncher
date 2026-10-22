@@ -352,10 +352,11 @@ void CSettingsScene::SaveSettings()
 		fclose(readFile);
 	}
 
-	const int numManagedKeys = 10;
+	const int numManagedKeys = 11;
 	bool updatedKeys[numManagedKeys] = {false};
 	const char* managedKeys[] = {
 		"videomode",
+		"videopatch",
 		"deflicker",
 		"language",
 		"LoaderIOS",
@@ -371,21 +372,28 @@ void CSettingsScene::SaveSettings()
 
 	int managedIntValues[numManagedKeys];
 	managedIntValues[0] = m_vSettings[SETTING_VIDEO_MODE].currentValue;
-	managedIntValues[1] = m_vSettings[SETTING_DEFLICKER].currentValue;
+	// Set videopatch = 2 (VIDEO_PATCH_DOL_ON) only when Force PAL video mode is set (3 or 6), otherwise videopatch = 0
+	int videoModeValue = m_vSettings[SETTING_VIDEO_MODE].currentValue;
+	if (videoModeValue == 3 || videoModeValue == 6) {
+		managedIntValues[1] = 2; // Force PAL 480i or Force PAL 480p
+	} else {
+		managedIntValues[1] = 0; // Default for all other modes
+	}
+	managedIntValues[2] = m_vSettings[SETTING_DEFLICKER].currentValue;
 	int langValue = m_vSettings[SETTING_LANGUAGE].currentValue;
 	switch (langValue) {
-		case 0:  managedIntValues[2] = 10; break; // Console Default (index 0)
-		case 6:  managedIntValues[2] = 0; break;  // Japanese (index 6)
-		case 7:  managedIntValues[2] = 6; break;  // Korean (index 7)
-		default: managedIntValues[2] = langValue; break;
+		case 0:  managedIntValues[3] = 10; break; // Console Default (index 0)
+		case 6:  managedIntValues[3] = 0; break;  // Japanese (index 6)
+		case 7:  managedIntValues[3] = 6; break;  // Korean (index 7)
+		default: managedIntValues[3] = langValue; break;
 	}
-	managedIntValues[3] = 248 + m_vSettings[SETTING_LOADERIOS_CIOS].currentValue;
-	managedIntValues[4] = managedIntValues[3]; // cios uses same value as LoaderIOS
-	managedIntValues[5] = m_vSettings[SETTING_MULTIPLE_PARTITIONS].currentValue;
-	managedIntValues[6] = m_vSettings[SETTING_USBPORT].currentValue;
-	managedIntValues[7] = m_vSettings[SETTING_NANDEMUMODE].currentValue;
-	managedIntValues[8] = 0; // NandEmuPath is handled separately with string value
-	managedIntValues[9] = m_vSettings[SETTING_GAME_ASPECT_RATIO].currentValue;
+	managedIntValues[4] = 248 + m_vSettings[SETTING_LOADERIOS_CIOS].currentValue;
+	managedIntValues[5] = managedIntValues[4]; // cios uses same value as LoaderIOS
+	managedIntValues[6] = m_vSettings[SETTING_MULTIPLE_PARTITIONS].currentValue;
+	managedIntValues[7] = m_vSettings[SETTING_USBPORT].currentValue;
+	managedIntValues[8] = m_vSettings[SETTING_NANDEMUMODE].currentValue;
+	managedIntValues[9] = 0; // NandEmuPath is handled separately with string value
+	managedIntValues[10] = m_vSettings[SETTING_GAME_ASPECT_RATIO].currentValue;
 
 	for (size_t i = 0; i < fileLines.size(); i++)
 	{
@@ -411,7 +419,7 @@ void CSettingsScene::SaveSettings()
 			{
 				if (strcmp(key, managedKeys[j]) == 0)
 				{
-					if (j == 8) // NandEmuPath index
+					if (j == 9) // NandEmuPath index
 					{
 						char newLine[256];
 						snprintf(newLine, sizeof(newLine), "%s = %s\n", managedKeys[j], nandEmuPathValue);
@@ -448,7 +456,7 @@ void CSettingsScene::SaveSettings()
 		{
 			if (!updatedKeys[i])
 			{
-				if (i == 8) // NandEmuPath index
+				if (i == 9) // NandEmuPath index
 					fprintf(writeFile, "%s = %s\n", managedKeys[i], nandEmuPathValue);
 				else
 					fprintf(writeFile, "%s = %d\n", managedKeys[i], managedIntValues[i]);
@@ -815,12 +823,12 @@ const char* CSettingsScene::GetDynamicDescription(int index)
 	return m_szDescriptionBuffer;
 }
 
-void CSettingsScene::HandleInputs(u32 gcPressed, s8 stickX, s8 stickY, s8 substickX, s8 substickY, u32 wiiPressed)
+void CSettingsScene::HandleInputs(u32 gcPressed, s8 stickX, s8 stickY, s8 substickX, s8 substickY, u32 wiiPressed, bool powerButtonPressed, bool resetButtonPressed)
 {
 	if (m_iDrawFrameNumber < 30 || m_iMenuSelectedIndex == -2)
 		return;
 
-	if ((gcPressed & PAD_BUTTON_B) || (wiiPressed & WPAD_BUTTON_B))
+	if ((gcPressed & PAD_BUTTON_B) || (wiiPressed & WPAD_BUTTON_B) || (powerButtonPressed && m_iMenuSelectedIndex == (int)m_vSettings.size() - 1))
 	{
 		SaveSettings();
 		m_eNextScreen = SCENE_MAIN_MENU;
@@ -834,7 +842,7 @@ void CSettingsScene::HandleInputs(u32 gcPressed, s8 stickX, s8 stickY, s8 substi
 
 	if (showAutoBootInfoPopup)
 	{
-		if ((gcPressed & PAD_BUTTON_A) || (wiiPressed & WPAD_BUTTON_A))
+		if ((gcPressed & PAD_BUTTON_A) || (wiiPressed & WPAD_BUTTON_A) || resetButtonPressed)
 		{
 			if (autoBootInfoPopup->getSelectedIndex() == 0)
 			{
@@ -870,7 +878,7 @@ void CSettingsScene::HandleInputs(u32 gcPressed, s8 stickX, s8 stickY, s8 substi
 		playSFX(SFX_SELECT);
 	}
 
-	if ((gcPressed & PAD_BUTTON_DOWN) || (wiiPressed & WPAD_BUTTON_DOWN) || stickMovedDown)
+	if ((gcPressed & PAD_BUTTON_DOWN) || (wiiPressed & WPAD_BUTTON_DOWN) || stickMovedDown || powerButtonPressed)
 	{
 		if (m_iMenuSelectedIndex == (int)m_vSettings.size() - 1)
 			m_iMenuSelectedIndex = 0;
@@ -880,7 +888,7 @@ void CSettingsScene::HandleInputs(u32 gcPressed, s8 stickX, s8 stickY, s8 substi
 		playSFX(SFX_SELECT);
 	}
 
-	if ((gcPressed & PAD_BUTTON_A) || (wiiPressed & WPAD_BUTTON_A))
+	if ((gcPressed & PAD_BUTTON_A) || (wiiPressed & WPAD_BUTTON_A) || resetButtonPressed)
 	{
 		if (m_iMenuSelectedIndex >= 0 && m_iMenuSelectedIndex < (int)m_vSettings.size() &&
 			m_vSettings[m_iMenuSelectedIndex].type == SETTING_RESET_TO_DEFAULTS)

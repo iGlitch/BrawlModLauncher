@@ -51,6 +51,9 @@ static bool g_bHaltGUI = false;
 static bool g_bGUIThreadIsSleeping = false;
 static bool g_bExitRequested = false;
 static bool g_networkStarted = false;
+static bool g_powerOffRequested = false;
+static bool g_powerButtonPressed = false;
+static bool g_resetButtonPressed = false;
 
 #define HBC_LULZ            0x000100014c554c5aULL
 #define HBC_108             0x00010001af1bf516ULL
@@ -232,7 +235,7 @@ void parse_arguments(int argc, char **argv)
             codesBasePath[sizeof(codesBasePath) - 1] = '\0';
             
             // Remove trailing slash
-                size_t len = strlen(codesBasePath);
+            size_t len = strlen(codesBasePath);
             if (len > 1 && codesBasePath[len-1] == '/') {
                 codesBasePath[len-1] = '\0';
             }
@@ -272,8 +275,24 @@ static GraphicsScene * g_pCurrentScene = nullptr;
 extern s32 wu_fd;
 void BackToLoader(void);
 static s32 iosVersion = 58;
-f32 g_LauncherVersion = 2.0f;
+f32 g_LauncherVersion = 2.1f;
 extern bool useDefaultTextures;
+extern bool isBadBoot;
+
+void WiimotePowerPressed(s32 chan)
+{
+    g_powerOffRequested = true;
+}
+
+void ConsolePowerPressed(void)
+{
+    g_powerButtonPressed = true;
+}
+
+void WiiResetPressed()
+{
+    g_resetButtonPressed = true;
+}
 
 namespace UIThread
 {
@@ -332,6 +351,10 @@ namespace UIThread
                 usleep(1000);
             }
 			
+            if (g_powerOffRequested) {
+                SYS_ResetSystem(SYS_POWEROFF, 0, 0);
+            }
+
             g_bGUIThreadIsSleeping = false;
             DrawDefaultBackground();
 
@@ -365,7 +388,9 @@ namespace UIThread
 
             if (!g_pCurrentScene) { usleep(1000); continue; }
 
-            g_pCurrentScene->HandleInputs(gcPressed, dStickX, dStickY, cStickX, cStickY, wiiPressed);
+            g_pCurrentScene->HandleInputs(gcPressed, dStickX, dStickY, cStickX, cStickY, wiiPressed, g_powerButtonPressed, g_resetButtonPressed);
+            g_powerButtonPressed = false;
+            g_resetButtonPressed = false;
             g_pCurrentScene->Draw();
 
             Menu_Render();
@@ -379,6 +404,7 @@ namespace UIThread
 
 bool sdhcSupport = true;
 bool usb2Support = true;
+bool isBadBoot = false;
 bool autoBoot = false;
 bool useGCPads = true;
 bool useWiiPads = true;
@@ -510,8 +536,21 @@ void loadConfig()
 }
 
 static bool IsUSBMounted() {
-    DIR *d = opendir("usb:/");
-    if (d) { closedir(d); return true; }
+    DIR *d = opendir("usb:/wbfs/");
+    if (d) {
+        struct dirent *pent;
+        while ((pent = readdir(d)) != NULL) {
+            if (strstr(pent->d_name, "Super Smash Bros. Brawl") != NULL ||
+                strstr(pent->d_name, "RSBE01") != NULL ||
+                strstr(pent->d_name, "RSBP01") != NULL ||
+                strstr(pent->d_name, "RSBJ01") != NULL ||
+                strstr(pent->d_name, "RSBK01") != NULL) {
+                closedir(d);
+                return true;
+            }
+        }
+        closedir(d);
+    }
     return false;
 }
 
@@ -646,6 +685,12 @@ int main(int argc, char **argv)
     parse_meta();
     parse_arguments(argc, argv);
     build_argv(&args);
+
+    // A normal launch should always have the first arg be the path
+    char *ptr = strrchr(argv[0], '/');
+    if (!ptr || (argv[0][2] != ':' && argv[0][3] != ':'))
+        isBadBoot = true;
+
     fatInitDefault();
     //mountSDCard();
     loadConfigFile();
@@ -656,23 +701,29 @@ int main(int argc, char **argv)
     WPAD_SetDataFormat(WPAD_CHAN_ALL, WPAD_FMT_BTNS_ACC_IR);
     WPAD_SetIdleTimeout(60 * 5); // idle after 5 minutes
     WPAD_SetVRes(WPAD_CHAN_0, fScreenWidth, fScreenHeight);
+    WPAD_SetPowerButtonCallback(WiimotePowerPressed);
+    SYS_SetPowerCallback(ConsolePowerPressed);
+    SYS_SetResetCallback(WiiResetPressed);
     PAD_Init();
 
 if (autoBoot)
 {
-    if (!IsDolphin()) sleep(3);
-    PAD_ScanPads();
-    WPAD_ScanPads();
-    u32 pad_down  = PAD_ButtonsDown(0)  | PAD_ButtonsDown(1)  | PAD_ButtonsDown(2)  | PAD_ButtonsDown(3);
-    u32 wpad_down = WPAD_ButtonsDown(0) | WPAD_ButtonsDown(1) | WPAD_ButtonsDown(2) | WPAD_ButtonsDown(3);
-    if ((wpad_down & WPAD_BUTTON_A) || (pad_down & PAD_BUTTON_A)) {
-        goto Menu;
-    } else {
-        WPAD_Shutdown();
-        BootHomebrew(argv);
-        //BackToLoader();
-        return 0;
+    if (!IsDolphin()) {
+        for (int i = 0; i < 30; i++) {
+            PAD_ScanPads();
+            WPAD_ScanPads();
+            u32 pad_down  = PAD_ButtonsDown(0)  | PAD_ButtonsDown(1)  | PAD_ButtonsDown(2)  | PAD_ButtonsDown(3);
+            u32 wpad_down = WPAD_ButtonsDown(0) | WPAD_ButtonsDown(1) | WPAD_ButtonsDown(2) | WPAD_ButtonsDown(3);
+            if ((wpad_down & WPAD_BUTTON_A) || (pad_down & PAD_BUTTON_A) || SYS_ResetButtonDown()) {
+                goto Menu;
+            }
+            usleep(100000); // 100ms sleep, check 30 times = 3 seconds total
+        }
     }
+    WPAD_Shutdown();
+    BootHomebrew(argv);
+    //BackToLoader();
+    return 0;
 }
         else{
 Menu:
@@ -706,7 +757,7 @@ Menu:
 
     if (useSFX) { SFX_Init(); }
 
-    if (useVideo && useFonts)
+    if (useVideo && useFonts || isBadBoot)
     {
         setLoadFlags(FT_LOAD_NO_HINTING);
         setRenderMode(FT_RENDER_MODE_NORMAL);

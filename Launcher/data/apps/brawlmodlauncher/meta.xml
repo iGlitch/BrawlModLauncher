@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<app version="2.0">
+<app version="2.1">
 	<name>Brawl Mod Launcher</name>
-	<coder>Shortfuse, Glitch, Kirbeast, blackb0x</coder>
-	<version>2.0</version>
+	<coder>Glitch, Kirbeast, blackb0x, Shortfuse</coder>
+	<version>2.1</version>
 	<release_date>20260716174700</release_date>
+	<short_description>Load a Brawl Mod with a disc or USB</short_description>
+	<long_description>Brawl Mod Launcher is a Wii homebrew application for loading Super Smash Bros. Brawl mods such as Project+ from a USB drive or Brawl disc. It lets you install and manage mod addons, check for updates, and configure boot options including the load source, video mode, aspect ratio, language, loader IOS and more. A copy of Super Smash Bros. Brawl is required to play mods.</long_description>
 	<arguments>
 		<arg>codespath=sd:/codes</arg>
 	</arguments>
-	<short_description>Load a Brawl Mod with a USB or Disc</short_description>
-	<long_description>Brawl Mod Launcher is a Wii homebrew application for loading Super Smash Bros. Brawl mods such as Project+ from a USB drive or Brawl disc. It lets you install and manage mod addons, check for updates, and configure boot options including the load source, video mode, aspect ratio, language, loader IOS and more. A copy of Super Smash Bros. Brawl is required to play mods.</long_description>
+	<ahb_access/>
 </app>

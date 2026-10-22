@@ -42,7 +42,7 @@ public:
 	virtual void Load(){};
 	virtual void Unload(){};
 	virtual void Draw(){};
-	virtual void HandleInputs(u32, s8, s8, s8, s8, u32){};
+	virtual void HandleInputs(u32, s8, s8, s8, s8, u32, bool, bool){};
 
 	virtual bool Work(){return true;};
 

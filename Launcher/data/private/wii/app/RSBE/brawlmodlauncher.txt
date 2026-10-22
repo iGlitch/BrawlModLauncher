@@ -1,1 +1,2 @@
-Path to the launcher boot.dol uses the name of this text file, as SD:/apps/(name)/boot.dol
+Path to the launcher boot.elf uses the name of this text file, as SD:/apps/(name)/boot.elf
+for Smashstack st_260626_1103.bin and Priiloader forwarder boot.dol

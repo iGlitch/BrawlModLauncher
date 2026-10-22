@@ -39,6 +39,11 @@ void CMainMenuScene::Load()
 	m_sPrevDStickY = s8(0);
 	m_eNextScreen = SCENE_MAIN_MENU;
 
+	showBadBootPopup = false;
+	badBootPopup = new Popup(screenwidth, screenheight, 0.90f, 0.55f, 0.40f, 0.75f);
+	badBootPopup->setAnimationFrames(15, true);
+	badBootPopup->setSelectionTextItems(0, 1, L"Exit");
+	badBootPopup->setLineTextItems(2, L"Bad boot.", L"Missing arguments.");
 
 	showInstallPopup = false;
 	installPopup = new Popup(screenwidth, screenheight, 0.90f, 0.55f, 0.40f, 0.75f);
@@ -76,6 +81,10 @@ void CMainMenuScene::Unload()
 	m_iDrawFrameNumber = 0;
 	m_sPrevDStickX = s8(0);
 	m_sPrevDStickY = s8(0);
+
+	showBadBootPopup = false;
+	delete badBootPopup;
+	
 	showInstallPopup = false;
 	delete installPopup;
 
@@ -85,11 +94,27 @@ void CMainMenuScene::Unload()
 	free(aboutLine2Text);
 };
 
-void CMainMenuScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed)
+void CMainMenuScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cStickX, s8 cStickY, u32 wiiPressed, bool powerButtonPressed, bool resetButtonPressed)
 {
-	if (showAboutPopup)
+	if (showBadBootPopup)
 	{
-		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START)
+		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START || resetButtonPressed)
+		{
+			if (badBootPopup->getSelectedIndex() == 0)
+			{
+				m_eNextScreen = SCENE_EXIT;
+				playSFX(SFX_CONFIRM);
+			}
+		}
+		else if (gcPressed & PAD_BUTTON_B || wiiPressed & WPAD_BUTTON_B)
+		{
+			m_eNextScreen = SCENE_EXIT;
+			playSFX(SFX_BACK);
+		}
+	}
+	else if (showAboutPopup)
+	{
+		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START || resetButtonPressed)
 		{
 			if (aboutPopup->getSelectedIndex() == 0)
 			{
@@ -119,7 +144,7 @@ void CMainMenuScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cSti
 				playSFX(SFX_SELECT);
 		}
 
-		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START)
+		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START || resetButtonPressed)
 		{
 			if (installPopup->getSelectedIndex() == 1)
 			{
@@ -156,7 +181,7 @@ void CMainMenuScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cSti
 			playSFX(SFX_SELECT);
 		}
 
-		if ((dStickY < -STICK_DEADZONE && m_sPrevDStickY >= -STICK_DEADZONE) || (gcPressed & PAD_BUTTON_DOWN || wiiPressed & WPAD_BUTTON_DOWN)){
+		if ((dStickY < -STICK_DEADZONE && m_sPrevDStickY >= -STICK_DEADZONE) || (gcPressed & PAD_BUTTON_DOWN || wiiPressed & WPAD_BUTTON_DOWN || powerButtonPressed)){
 			if (m_iMenuSelectedIndex == 4)
 				m_iMenuSelectedIndex = 0L;
 			else
@@ -165,7 +190,7 @@ void CMainMenuScene::HandleInputs(u32 gcPressed, s8 dStickX, s8 dStickY, s8 cSti
 			playSFX(SFX_SELECT);
 		}
 
-		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START)
+		if (gcPressed & PAD_BUTTON_A || wiiPressed & WPAD_BUTTON_A || gcPressed & PAD_BUTTON_START || resetButtonPressed)
 		{
 			switch (m_iMenuSelectedIndex)
 			{
@@ -226,6 +251,11 @@ void CMainMenuScene::Draw()
 	if (m_iDrawFrameNumber < 15)
 		offset = 11.5f * (m_iDrawFrameNumber - 15);
 
+	if (isBadBoot) {
+		showBadBootPopup = true;
+		badBootPopup->draw();
+		return;
+	}
 
 	drawNewsBox(yPos, offset, 65);
 
@@ -293,7 +323,6 @@ void CMainMenuScene::Draw()
 
 	if (showAboutPopup)
 		aboutPopup->draw();
-
 
 	if (showInstallPopup)
 		installPopup->draw();
